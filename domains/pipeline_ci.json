@@ -1,0 +1,24 @@
+{
+  "name": "pipeline_ci",
+  "description": "Entorno conceptual de integración continua y despliegue",
+  "initial_location": "stage_build",
+  "rooms": ["stage_build", "stage_test", "stage_deploy"],
+  "doors": {
+    "gate_pruebas": {
+      "connects": ["stage_build", "stage_test"],
+      "open": true,
+      "locked": false,
+      "required_key": null
+    },
+    "gate_produccion": {
+      "connects": ["stage_test", "stage_deploy"],
+      "open": false,
+      "locked": true,
+      "required_key": "token_aprobacion"
+    }
+  },
+  "items": {
+    "reporte_cobertura": {"location": "stage_build", "type": "Artifact"},
+    "token_aprobacion": {"location": "stage_test", "type": "KeyItem"}
+  }
+}

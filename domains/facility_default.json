@@ -1,0 +1,24 @@
+{
+  "name": "facility_default",
+  "description": "Instalación estándar con pasillo, depósito y sala de servidores",
+  "initial_location": "pasillo",
+  "rooms": ["pasillo", "deposito", "sala_servidores"],
+  "doors": {
+    "puerta_deposito": {
+      "connects": ["pasillo", "deposito"],
+      "open": false,
+      "locked": false,
+      "required_key": null
+    },
+    "puerta_servidores": {
+      "connects": ["pasillo", "sala_servidores"],
+      "open": false,
+      "locked": true,
+      "required_key": "tarjeta_azul"
+    }
+  },
+  "items": {
+    "llave_bronce": {"location": "pasillo", "type": "KeyItem"},
+    "tarjeta_azul": {"location": "deposito", "type": "KeyItem"}
+  }
+}

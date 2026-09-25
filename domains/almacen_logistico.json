@@ -1,0 +1,24 @@
+{
+  "name": "almacen_logistico",
+  "description": "Almacén industrial con zona de recepción, estanterías y zona de empaque",
+  "initial_location": "recepcion",
+  "rooms": ["recepcion", "estanterias", "empaque"],
+  "doors": {
+    "puerta_almacen": {
+      "connects": ["recepcion", "estanterias"],
+      "open": true,
+      "locked": false,
+      "required_key": null
+    },
+    "puerta_seguridad_empaque": {
+      "connects": ["estanterias", "empaque"],
+      "open": false,
+      "locked": true,
+      "required_key": "credencial_operador"
+    }
+  },
+  "items": {
+    "lector_codigo_barras": {"location": "recepcion", "type": "ToolItem"},
+    "credencial_operador": {"location": "estanterias", "type": "KeyItem"}
+  }
+}

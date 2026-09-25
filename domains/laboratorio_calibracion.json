@@ -1,0 +1,24 @@
+{
+  "name": "laboratorio_calibracion",
+  "description": "Laboratorio metrológico con esclusa de temperatura y cámara limpia",
+  "initial_location": "esclusa",
+  "rooms": ["esclusa", "zona_calibracion", "camara_limpia"],
+  "doors": {
+    "puerta_zona_calibracion": {
+      "connects": ["esclusa", "zona_calibracion"],
+      "open": false,
+      "locked": false,
+      "required_key": null
+    },
+    "puerta_camara_limpia": {
+      "connects": ["zona_calibracion", "camara_limpia"],
+      "open": false,
+      "locked": true,
+      "required_key": "patron_referencia"
+    }
+  },
+  "items": {
+    "termometro_patron": {"location": "esclusa", "type": "Sensor"},
+    "patron_referencia": {"location": "zona_calibracion", "type": "KeyItem"}
+  }
+}

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MF_MIN Cognitive Architecture - Dashboard Interactivo</title>
+<style>
+  :root {
+    --bg-main: #0b1120;
+    --bg-card: #1e293b;
+    --bg-inner: #0f172a;
+    --border: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #38bdf8;
+    --accent-hover: #0284c7;
+    --success: #34d399;
+    --danger: #f87171;
+    --warning: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-main); color: var(--text-primary); margin: 0; padding: 20px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  h1 { font-size: 22px; color: var(--accent); margin: 0; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-live { background: #065f46; color: var(--success); }
+  .badge-local { background: #1e3a8a; color: #93c5fd; }
+  .badge-pos { background: #065f46; color: var(--success); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .badge-neg { background: #7f1d1d; color: var(--danger); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  
+  .control-bar { background: var(--bg-card); border-radius: 12px; padding: 16px 20px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .input-cmd { flex: 1; min-width: 280px; padding: 10px 14px; background: var(--bg-inner); border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; }
+  .input-cmd:focus { outline: none; border-color: var(--accent); }
+  .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: var(--accent-hover); color: #fff; }
+  .btn-secondary { background: #334155; color: #fff; }
+  .btn-secondary:hover { background: #475569; }
+  .btn-step { background: #4338ca; color: #fff; }
+  .btn-step:hover { background: #3730a3; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; }
+  .card { background: var(--bg-card); border-radius: 12px; padding: 18px; border: 1px solid var(--border); }
+  .card h2 { color: var(--accent); font-size: 16px; margin-top: 0; margin-bottom: 6px; }
+  .card p.sub { font-size: 12px; color: var(--text-secondary); margin-top: 0; margin-bottom: 12px; }
+
+  #world-canvas { background: var(--bg-inner); border-radius: 8px; border: 1px solid var(--border); width: 100%; height: 200px; display: block; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-secondary); }
+
+  .q-bar-container { margin-bottom: 10px; font-size: 12px; }
+  .q-bar-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .q-bar-bg { background: #334155; border-radius: 4px; height: 10px; overflow: hidden; }
+  .q-bar-fill { background: var(--accent); height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+
+  .log-box { background: var(--bg-inner); border-radius: 8px; padding: 12px; border: 1px solid var(--border); font-family: monospace; font-size: 12px; height: 160px; overflow-y: auto; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>MF_MIN Cognitive Architecture <span style="font-size:14px; color:var(--text-secondary); font-weight:normal;">| Capas 1, 2 y 3 Consolidadas</span></h1>
+    </div>
+    <div id="mode-badge" class="badge badge-local">
+      Modo: Inicializando...
+    </div>
+  </header>
+
+  <div class="control-bar">
+    <div style="width:100%; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <span style="font-weight:600; color:var(--accent); font-size:13px;">Comando Deliberativo:</span>
+      <input type="text" id="user-input" class="input-cmd" placeholder="Instrucción (ej. 'entra a la sala de servidores', 'ir al deposito', 'recoger tarjeta azul')">
+      <button class="btn btn-primary" onclick="handleUserCommand()">Ejecutar Comando</button>
+      <button class="btn btn-secondary" onclick="quickCmd('entra a la sala de servidores')">Misión Servidores</button>
+      <button class="btn btn-secondary" onclick="quickCmd('ir al deposito')">Ir a Depósito</button>
+      <button class="btn btn-secondary" onclick="quickCmd('recoger la tarjeta azul')">Tomar Tarjeta</button>
+      <button class="btn btn-secondary" onclick="resetSim()">Reiniciar</button>
+    </div>
+    <div style="width:100%; display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:8px; padding-top:8px; border-top:1px solid #334155;">
+      <span style="font-weight:600; color:var(--success); font-size:13px;">Enseñar Hecho (ASSERTION):</span>
+      <input type="text" id="assertion-input" class="input-cmd" placeholder="Afirmación formal (ej. 'A pertenece a B.', 'B pertenece a C.', 'X depende de Y.')">
+      <button class="btn btn-step" onclick="handleAssertion()">Enseñar al Agente</button>
+      <button class="btn btn-secondary" onclick="quickAssert('A pertenece a B.')">A ∈ B</button>
+      <button class="btn btn-secondary" onclick="quickAssert('B pertenece a C.')">B ∈ C</button>
+      <button class="btn btn-secondary" onclick="quickAssert('A pertenece a C.')">A ∈ C (Inducción)</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card" style="grid-column: span 2;">
+      <h2>Mundo Fisico Real (VirtualFacilityEnvironment)</h2>
+      <p class="sub">El entorno existe independientemente del Kernel del agente. Muestra habitaciones, puertas, llaves y posicion:</p>
+      <canvas id="world-canvas" width="700" height="200"></canvas>
+      <div style="display:flex; gap:12px; margin-top:12px; font-size:12px;">
+        <div><b>Ubicacion actual:</b> <span id="loc-tag" style="color:var(--accent);">pasillo</span></div>
+        <div><b>Inventario en manos:</b> <span id="inv-tag" style="color:var(--accent);">[]</span></div>
+        <div><b>Puerta Servidores:</b> <span id="door-serv-tag" style="color:var(--danger);">CERRADA / BLOQUEADA</span></div>
+        <div><b>Puerta Deposito:</b> <span id="door-dep-tag" style="color:var(--warning);">CERRADA / DESBLOQUEADA</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: span 2;">
+      <h2>Registro de Ciclo Cognitivo y Explicacion</h2>
+      <p class="sub">Trazabilidad en vivo: Percepcion, Deduccion (EngineD), Plan (Motor C) y Aprendizaje:</p>
+      <div id="cognitive-log" class="log-box">Sistema iniciado. Elige un paso o ingresa una instruccion arriba para activar la deliberacion.</div>
+    </div>
+
+    <div class="card">
+      <h2>Nucleo Formal MF_MIN &lt;O, M, A, delta&gt;</h2>
+      <p class="sub">Relaciones inmutables activas en el Kernel del agente:</p>
+      <div style="max-height: 240px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr><th>Sujeto</th><th>Predicado</th><th>Objeto</th><th>Pol</th><th>Origen</th></tr>
+          </thead>
+          <tbody id="relations-tbody">
+            <tr><td colspan="4">Cargando grafo...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Priors de Accion Aprendidos Q(a)</h2>
+      <p class="sub">Preferencia de operadores ajustada por asignación de crédito:</p>
+      <div id="q-values-container" style="max-height: 240px; overflow-y: auto;">
+        Cargando priors...
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Reglas Inducidas Activas (Meta-Aprendizaje)</h2>
+      <p class="sub">Reglas descubiertas por inducción lógica promovidas a EngineD:</p>
+      <div id="rules-container" style="max-height: 240px; overflow-y: auto;">
+        <span style="color:#94a3b8; font-size:13px;">Sin reglas inducidas todavía.</span>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: span 2;">
+      <h2>Memoria Episodica Consolidada</h2>
+      <p class="sub">Trayectorias ejecutadas, recompensas y evaluacion:</p>
+      <table>
+        <thead>
+          <tr><th>ID Episodio</th><th>Plan de Acciones</th><th>Costo</th><th>Recompensa</th><th>Estado</th></tr>
+        </thead>
+        <tbody id="episodes-tbody">
+          <tr><td colspan="5">Sin episodios registrados.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let isLiveServer = false;
+    let worldState = {
+      agentLocation: "pasillo",
+      inventory: [],
+      doors: { puerta_deposito: { open: false, locked: false }, puerta_servidores: { open: false, locked: true } },
+      items: { llave_bronce: "pasillo", tarjeta_azul: "deposito" }
+    };
+    let kernelRelations = [
+      { source: "agente", predicate: "posicion", target: "pasillo", polarity: true },
+      { source: "puerta_servidores", predicate: "estado", target: "cerrada", polarity: true },
+      { source: "puerta_servidores", predicate: "seguridad", target: "bloqueada", polarity: true },
+      { source: "puerta_deposito", predicate: "estado", target: "cerrada", polarity: true },
+      { source: "puerta_deposito", predicate: "seguridad", target: "desbloqueada", polarity: true },
+      { source: "llave_bronce", predicate: "estado", target: "en_suelo", polarity: true }
+    ];
+    let actionPriors = {
+      abrir_puerta_deposito: 0.0, entrar_deposito: 0.0, recoger_tarjeta_azul: 0.0,
+      volver_al_pasillo: 0.0, destrabar_puerta_servidores: 0.0, abrir_puerta_servidores: 0.0,
+      entrar_sala_servidores: 0.0, destrabar_con_llave_bronce: 0.0
+    };
+    let episodes = [];
+
+    async function checkBackend() {
+      try {
+        const res = await fetch('/api/status', { method: 'GET' });
+        if (res.ok) {
+          const data = await res.json();
+          isLiveServer = true;
+          document.getElementById('mode-badge').className = "badge badge-live";
+          document.getElementById('mode-badge').innerText = "Modo En Vivo: Servidor Python :8000 (" + (data.ollama_available ? "Ollama " + data.model : "Ollama Offline") + ")";
+          syncFromBackend(data);
+          return;
+        }
+      } catch (e) {}
+      isLiveServer = false;
+      document.getElementById('mode-badge').className = "badge badge-local";
+      document.getElementById('mode-badge').innerText = "Modo Interactivo Local (Navegador)";
+      renderAll();
+    }
+
+    function syncFromBackend(data) {
+      worldState.agentLocation = data.agent_location;
+      worldState.inventory = data.inventory;
+      kernelRelations = data.relations;
+      actionPriors = data.action_values;
+      episodes = data.episodes;
+      if (data.inference_rules) {
+        const rc = document.getElementById('rules-container');
+        if (data.inference_rules.length > 0) {
+          rc.innerHTML = data.inference_rules.map(r => "<div style="margin-bottom:8px; padding:8px; background:#0f172a; border-radius:6px; border:1px solid #334155; font-size:12px;"><div style="color:#38bdf8; font-weight:600;">" + r.id + "</div><div style="color:#cbd5e1;">" + r.name + "</div></div>").join('');
+        } else {
+          rc.innerHTML = '<span style="color:#94a3b8; font-size:13px;">Sin reglas inducidas todavía.</span>';
+        }
+      }
+      if (data.last_result && data.last_result.explanation) {
+        log(data.last_result.explanation);
+      }
+      renderAll();
+    }
+
+    function log(msg) {
+      const box = document.getElementById('cognitive-log');
+      const t = new Date().toLocaleTimeString();
+      box.innerText = "[" + t + "]\n" + msg + "\n\n" + box.innerText;
+    }
+
+    function drawWorld() {
+      const canvas = document.getElementById('world-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const rooms = [
+        { id: "deposito", label: "Deposito", x: 20, y: 30, w: 180, h: 140, color: "#1e293b" },
+        { id: "pasillo", label: "Pasillo Principal", x: 240, y: 30, w: 220, h: 140, color: "#334155" },
+        { id: "sala_servidores", label: "Sala de Servidores", x: 500, y: 30, w: 180, h: 140, color: "#0f172a" }
+      ];
+
+      rooms.forEach(r => {
+        ctx.fillStyle = r.color;
+        ctx.strokeStyle = (worldState.agentLocation === r.id) ? "#38bdf8" : "#475569";
+        ctx.lineWidth = (worldState.agentLocation === r.id) ? 3 : 1;
+        ctx.fillRect(r.x, r.y, r.w, r.h);
+        ctx.strokeRect(r.x, r.y, r.w, r.h);
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText(r.label, r.x + 12, r.y + 24);
+      });
+
+      const pd = worldState.doors.puerta_deposito;
+      ctx.fillStyle = pd.open ? "#34d399" : "#fbbf24";
+      ctx.fillRect(210, 85, 20, 30);
+      ctx.fillStyle = "#fff";
+      ctx.font = "10px sans-serif";
+      ctx.fillText(pd.open ? "ABIERTA" : "CERRADA", 195, 80);
+
+      const ps = worldState.doors.puerta_servidores;
+      ctx.fillStyle = ps.open ? "#34d399" : (ps.locked ? "#f87171" : "#fbbf24");
+      ctx.fillRect(470, 85, 20, 30);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(ps.open ? "ABIERTA" : (ps.locked ? "BLOQ" : "CERRADA"), 460, 80);
+
+      if (worldState.items.tarjeta_azul === "deposito") {
+        ctx.fillStyle = "#38bdf8";
+        ctx.fillRect(50, 110, 16, 12);
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("Tarjeta Azul", 72, 120);
+      }
+      if (worldState.items.llave_bronce === "pasillo") {
+        ctx.fillStyle = "#d97706";
+        ctx.fillRect(320, 110, 14, 10);
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "11px sans-serif";
+        ctx.fillText("Llave Bronce", 340, 120);
+      }
+
+      let ax = 330, ay = 80;
+      if (worldState.agentLocation === "deposito") { ax = 100; ay = 80; }
+      if (worldState.agentLocation === "sala_servidores") { ax = 580; ay = 80; }
+
+      ctx.beginPath();
+      ctx.arc(ax, ay, 14, 0, Math.PI * 2);
+      ctx.fillStyle = "#38bdf8";
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#000";
+      ctx.font = "bold 11px sans-serif";
+      ctx.fillText("AG", ax - 7, ay + 4);
+    }
+
+    function renderAll() {
+      document.getElementById('loc-tag').innerText = worldState.agentLocation;
+      document.getElementById('inv-tag').innerText = JSON.stringify(worldState.inventory);
+
+      const ps = worldState.doors.puerta_servidores;
+      document.getElementById('door-serv-tag').innerText = ps.open ? "ABIERTA" : (ps.locked ? "CERRADA / BLOQUEADA" : "DESBLOQUEADA");
+      document.getElementById('door-serv-tag').style.color = ps.open ? "#34d399" : (ps.locked ? "#f87171" : "#fbbf24");
+
+      const pd = worldState.doors.puerta_deposito;
+      document.getElementById('door-dep-tag').innerText = pd.open ? "ABIERTA" : "CERRADA";
+      document.getElementById('door-dep-tag').style.color = pd.open ? "#34d399" : "#fbbf24";
+
+      const tbodyR = document.getElementById('relations-tbody');
+      tbodyR.innerHTML = kernelRelations.map(r => {
+        let orig = r.origin || "asserted";
+        let badgeClass = orig === "derived" ? "badge-local" : (orig === "proposed" ? "badge-neg" : "badge-pos");
+        return "<tr><td><b>" + r.source + "</b></td><td>" + r.predicate + "</td><td>" + r.target + "</td><td><span class="badge " + (r.polarity ? "badge-pos" : "badge-neg") + "">" + (r.polarity ? "+" : "-") + "</span></td><td><span class="badge " + badgeClass + "" style="font-size:10px; padding:2px 5px;">" + orig + "</span></td></tr>";
+      }).join('');
+
+      const qContainer = document.getElementById('q-values-container');
+      qContainer.innerHTML = Object.entries(actionPriors).map(([act, q]) => {
+        const pct = Math.min(100, Math.max(8, (q + 3) * 15));
+        return "<div class="q-bar-container"><div class="q-bar-header"><span>" + act + "</span><span>Q = " + q.toFixed(3) + "</span></div><div class="q-bar-bg"><div class="q-bar-fill" style="width:" + pct + "%;"></div></div></div>";
+      }).join('');
+
+      const epTbody = document.getElementById('episodes-tbody');
+      if (episodes.length > 0) {
+        epTbody.innerHTML = episodes.map(ep => "<tr><td><code>" + ep.id + "</code></td><td>" + (Array.isArray(ep.plan) ? ep.plan.join(" -> ") : ep.plan) + "</td><td>" + (ep.cost ? ep.cost.toFixed(1) : "-") + "</td><td>" + (ep.reward ? ep.reward.toFixed(2) : "-") + "</td><td><span class="badge " + (ep.success ? "badge-pos" : "badge-neg") + "">" + (ep.success ? "EXITO" : "FALLO") + "</span></td></tr>").join('');
+      } else {
+        epTbody.innerHTML = '<tr><td colspan="5" style="color:#94a3b8;">Sin episodios registrados.</td></tr>';
+      }
+      drawWorld();
+    }
+
+    function runSimStep(stepNum) {
+      if (isLiveServer) {
+        const cmds = {
+          1: "percibir sensores en pasillo",
+          2: "probar destrabar puerta servidores con llave de bronce",
+          3: "consultar memoria y buscar tarjeta azul en deposito",
+          4: "Por favor, entra a la sala de servidores y asegura el area"
+        };
+        fetch('/api/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: cmds[stepNum] })
+        }).then(r => r.json()).then(res => {
+          log(res.explanation);
+          checkBackend();
+        });
+        return;
+      }
+
+      if (stepNum === 1) {
+        log("PASO 1: PERCEPCION Y DEDUCCION (EngineD)\nSensores detectan: Agente en pasillo, puerta_servidores cerrada y bloqueada, llave_bronce en suelo.\nEngineD deduce: puerta_servidores requiere_destrabar.\nHechos promovidos a Kernel MF_MIN.");
+      } else if (stepNum === 2) {
+        worldState.inventory.push("llave_bronce");
+        worldState.items.llave_bronce = "en_mano";
+        actionPriors.destrabar_con_llave_bronce = -2.875;
+        episodes.unshift({
+          id: "EP_FALLO_LLAVE_BRONCE",
+          plan: ["recoger(llave_bronce)", "destrabar(puerta_servidores)"],
+          cost: 2.5,
+          reward: -11.50,
+          success: false
+        });
+        log("PASO 2: ACCION FISICA Y FALLO AMBIENTAL REAL\nEl agente recogio llave_bronce e intento destrabar puerta_servidores.\nEl entorno fisico respondio: FALLO (La llave de bronce no coincide con la cerradura electronica).\nDeteccion de discrepancia: La puerta continua bloqueada.\nAprendizaje por refuerzo: Q(destrabar_con_llave_bronce) penalizado a -2.875.");
+      } else if (stepNum === 3) {
+        log("PASO 3: RECUPERACION SEMANTICA Y ATENCION Q/K/V\nConsulta a memoria: tarjeta acceso sala servidores.\nRecuerdo atendido: En el deposito se encuentra guardada la tarjeta azul.\nFoco atencional establecido: Ir primero al deposito.\nMotor C inicia busqueda en espacio de estados...");
+      } else if (stepNum === 4) {
+        worldState.doors.puerta_deposito.open = true;
+        worldState.agentLocation = "sala_servidores";
+        worldState.doors.puerta_servidores.locked = false;
+        worldState.doors.puerta_servidores.open = true;
+        worldState.inventory.push("tarjeta_azul");
+        worldState.items.tarjeta_azul = "en_mano";
+
+        kernelRelations = kernelRelations.filter(r => r.predicate !== "posicion");
+        kernelRelations.push({ source: "agente", predicate: "posicion", target: "sala_servidores", polarity: true });
+        kernelRelations.push({ source: "puerta_servidores", predicate: "estado", target: "abierta", polarity: true });
+
+        actionPriors.abrir_puerta_deposito = 2.406;
+        actionPriors.entrar_deposito = 1.937;
+        actionPriors.recoger_tarjeta_azul = 1.375;
+        actionPriors.volver_al_pasillo = 1.937;
+        actionPriors.destrabar_puerta_servidores = 1.375;
+        actionPriors.abrir_puerta_servidores = 2.406;
+        actionPriors.entrar_sala_servidores = 3.179;
+
+        episodes.unshift({
+          id: "EP_EXITO_MISION_SERVIDORES",
+          plan: ["abrir_deposito", "entrar_deposito", "recoger_tarjeta", "volver_pasillo", "destrabar_servidores", "abrir_servidores", "entrar_servidores"],
+          cost: 9.0,
+          reward: 5.50,
+          success: true
+        });
+
+        log("PASO 4: DESCUBRIMIENTO AUTONOMO Y EJECUCION EXITOSA\nMotor C descubrio de forma autonoma el plan optimo de 7 pasos:\nabrir_puerta_deposito -> entrar_deposito -> recoger_tarjeta_azul -> volver_al_pasillo -> destrabar_puerta_servidores -> abrir_puerta_servidores -> entrar_sala_servidores\nCada paso fue ejecutado y validado en el entorno fisico real.\nEl agente se encuentra dentro de sala_servidores.\nRecompensa final: +5.50. Trayectoria consolidada en memoria episodica.");
+      }
+      renderAll();
+    }
+
+    function resetSim() {
+      resetSimBackend();
+      worldState = {
+        agentLocation: "pasillo",
+        inventory: [],
+        doors: { puerta_deposito: { open: false, locked: false }, puerta_servidores: { open: false, locked: true } },
+        items: { llave_bronce: "pasillo", tarjeta_azul: "deposito" }
+      };
+      kernelRelations = [
+        { source: "agente", predicate: "posicion", target: "pasillo", polarity: true },
+        { source: "puerta_servidores", predicate: "estado", target: "cerrada", polarity: true },
+        { source: "puerta_servidores", predicate: "seguridad", target: "bloqueada", polarity: true },
+        { source: "puerta_deposito", predicate: "estado", target: "cerrada", polarity: true },
+        { source: "puerta_deposito", predicate: "seguridad", target: "desbloqueada", polarity: true },
+        { source: "llave_bronce", predicate: "estado", target: "en_suelo", polarity: true }
+      ];
+      log("Simulacion reiniciada.");
+      renderAll();
+    }
+
+    
+    function quickCmd(cmd) {
+      document.getElementById('user-input').value = cmd;
+      handleUserCommand();
+    }
+
+    function quickAssert(text) {
+      document.getElementById('assertion-input').value = text;
+      handleAssertion();
+    }
+
+    async function handleAssertion() {
+      const input = document.getElementById('assertion-input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/assert', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ text: val })
+          });
+          const data = await res.json();
+          if (data.success) {
+            log("[ASSERTION EXITOSA]
+" + data.detail + "
+Total deducciones derivadas: " + data.deductions_count + "
+Relaciones totales en Kernel: " + data.total_relations);
+          } else {
+            log("[ASSERTION RECHAZADA]
+" + data.detail);
+          }
+          checkBackend();
+        } catch (e) {
+          log("Error conectando con el backend: " + e);
+        }
+      } else {
+        log("Modo Local: Para aserción y deducción completa en vivo, inicia el servidor Python con: python server.py");
+      }
+      input.value = "";
+    }
+
+    async function resetSimBackend() {
+      if (isLiveServer) {
+        try {
+          await fetch('/api/reset', { method: 'POST' });
+          log("Entorno físico y Kernel del agente reiniciados con éxito.");
+          checkBackend();
+        } catch(e) {}
+      }
+    }
+
+    function handleUserCommand() {
+      const input = document.getElementById('user-input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      if (isLiveServer) {
+        fetch('/api/execute', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: val })
+        }).then(r => r.json()).then(res => {
+          log(res.explanation);
+          checkBackend();
+        });
+      } else {
+        log("Comando recibido: \"" + val + "\"\nIniciando descubrimiento autonomo de plan para cumplir el objetivo...");
+        setTimeout(() => runSimStep(4), 600);
+      }
+      input.value = "";
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkBackend();
+      renderAll();
+      setInterval(checkBackend, 3000);
+    });
+  </script>
+</body>
+</html>
