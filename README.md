@@ -56,3 +56,39 @@ El lanzador unificado `main.py` permite operar todos los módulos del sistema:
    - Despachador de entradas universales `InputEnvelope` (`COMMAND`, `ASSERTION`, `PERCEPTION`).
    - Inducción de reglas de transitividad y simetría con recuento de soporte y discriminación ante contraejemplos.
    - Reificación conceptual de clases abstractas en el Kernel.
+
+
+---
+
+## 4. Continuidad del proyecto: Bloques A–F
+
+A partir de la auditoría de V7.1 se establece una línea de continuidad que separa el **núcleo formal** de las capacidades construidas sobre él.
+
+### Núcleo de trabajo
+
+```
+MF_MIN = <O, M, A, δ>
+```
+
+El núcleo queda tratado como **mínimo operativo de trabajo** bajo la semántica actual. La investigación de eliminación de sus cuatro componentes queda cerrada salvo nueva evidencia concreta.
+
+### Bloques
+
+| Bloque | Propósito | Resultado esperado |
+|---|---|---|
+| **A** | Especificación formal | Definición canónica del núcleo |
+| **B** | Irreducibilidad | Cierre acotado de O, M, A y δ |
+| **C** | Suficiencia constructiva | Mapa de expresividad y límites |
+| **D** | Reclasificación V7.1 | Separación núcleo/extensiones |
+| **E** | Experimentos controlados | Evidencia reproducible sobre capacidades |
+| **F** | Gobernanza científica | Criterios para evolucionar el núcleo |
+
+### Documentación
+
+- [Plan completo de Bloques A–F](docs/PLAN_BLOQUES_A_F_2026-09-24.md)
+- [Cierre de irreducibilidad](docs/PRUEBA_IRREDUCIBILIDAD_MF_MIN_2026-09-24.md)
+- [Registro de decisiones](docs/REGISTRO_DECISION_MF_MIN_2026-09-24.md)
+
+**Registro inicial:** 2026-09-25 02:22:46 UTC / 2026-09-24 20:22:46 UTC-06:00.
+
+El objetivo de esta etapa no es aumentar indefinidamente la cantidad de funcionalidades, sino determinar qué puede emerger del núcleo, dónde están sus límites y qué extensiones están realmente justificadas.
