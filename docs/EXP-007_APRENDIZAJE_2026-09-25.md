@@ -43,4 +43,4 @@ Este experimento no demuestra que todo paradigma de aprendizaje pueda reducirse 
 
 ## Estado
 
-**IMPLEMENTADO — pendiente de ejecución runtime.**
+**EJECUTADO — PASS.** La prueba confirmó que una generalización derivada puede conservar procedencia mediante `premises` y `rule_id`, sin introducir una quinta primitiva.

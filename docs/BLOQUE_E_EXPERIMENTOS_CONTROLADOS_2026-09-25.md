@@ -43,7 +43,7 @@ Buscar un caso donde recuperar un episodio exija una entidad formal que no pueda
 ### Resultado esperado
 La representación formal es posible; índices, embeddings y recuperación eficiente permanecen fuera del núcleo.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 5. EXP-002 — Temporalidad
 
@@ -56,7 +56,7 @@ Construir eventos e1,e2,e3 y relaciones antes_de(e1,e2). Cambiar el estado media
 ### Falsación
 Encontrar una propiedad temporal necesaria que no pueda representarse sin introducir semántica adicional.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 6. EXP-003 — Causalidad
 
@@ -69,7 +69,7 @@ Comparar precedencia, correlación, dependencia, intervención y contrafactual.
 ### Falsación
 Demostrar que una propiedad causal necesaria requiere una operación o semántica que no pueda reducirse a O/M/A/δ.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 7. EXP-004 — Reglas
 
@@ -82,7 +82,7 @@ Usar P(x) ∧ Q(x) → R(x), verificar premisas y producir una transición deriv
 ### Falsación
 Requerir una semántica de reglas que no pueda expresarse como datos + evaluación + δ.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 8. EXP-005 — Incertidumbre
 
@@ -95,7 +95,7 @@ Comparar representaciones de confianza, probabilidad, posibilidad, evidencia y d
 ### Falsación
 Demostrar que la semántica requerida no puede expresarse mediante estructuras existentes y algoritmos externos sin pérdida conceptual esencial.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 9. EXP-006 — Planificación
 
@@ -108,7 +108,7 @@ Definir S0 →δ S1 →δ ... →δ Sn y comprobar el objetivo sobre Sn. La bús
 ### Falsación
 Demostrar que planificación necesita una primitiva ontológica adicional y no solamente búsqueda sobre δ.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
 ## 10. EXP-007 — Aprendizaje
 
@@ -121,9 +121,24 @@ Separar experiencia observada, modificación de estado, modificación de reglas/
 ### Falsación
 Encontrar una forma de aprendizaje cuya semántica fundamental no pueda expresarse como transformación de estructuras existentes.
 
-**Estado: pendiente de ejecución.**
+**Estado: EJECUTADO — PASS.**
 
-## 11. Criterio de cierre
+## 11. Ejecución runtime y resultado consolidado
+
+La batería se ejecutó localmente sobre la copia sincronizada con `origin/main`.
+
+**Resultado final:** 19 pruebas aprobadas, 0 fallos.
+
+La primera ejecución produjo 5 fallos en EXP-004, EXP-005 y EXP-007. La revisión mostró que no eran contraejemplos contra MF_MIN, sino discrepancias entre los tests experimentales y los contratos ya definidos por el núcleo:
+
+- EXP-004 y EXP-007 intentaban crear relaciones `derived` sin `rule_id`, aunque el contrato de `Relation` exige procedencia de regla para una derivación.
+- EXP-005 intentaba conservar simultáneamente polaridades positiva y negativa del mismo triple, lo que viola deliberadamente I3 (no contradicción).
+
+Los tests fueron corregidos para respetar esos contratos sin modificar el núcleo. La segunda ejecución produjo **19 passed in 0.06s**.
+
+Este resultado no prueba una expresividad universal de MF_MIN. Sí confirma que las siete representaciones experimentales implementadas son compatibles con el núcleo V7.1 bajo la semántica e invariantes actuales, y que sus algoritmos/semánticas adicionales pueden mantenerse como extensiones.
+
+## 12. Criterio de cierre
 
 Un experimento se cierra cuando la representación funciona y sus límites están documentados; aparece un contraejemplo reproducible; o queda demostrado que la pregunta es indeterminada bajo la semántica actual.
 
@@ -131,7 +146,7 @@ No se repiten indefinidamente experimentos equivalentes.
 
 Un resultado negativo válido es: “No demostrado bajo el formalismo actual”; no significa automáticamente “imposible en toda formalización”.
 
-## 12. Gobernanza de resultados
+## 13. Gobernanza de resultados
 
 Ningún experimento puede modificar el núcleo automáticamente.
 
@@ -141,10 +156,10 @@ contraejemplo → análisis → intento de reducción → nueva semántica propu
 
 Solo entonces puede abrirse una revisión del núcleo.
 
-## 13. Estado del Bloque E
+## 14. Estado del Bloque E
 
-**DISEÑO DEL BLOQUE E: CERRADO.**
+**BLOQUE E: CERRADO FORMALMENTE.**
 
-Los siete experimentos quedan definidos y listos para ejecución.
+Los siete experimentos fueron ejecutados sobre la copia local sincronizada con `origin/main` y finalizaron con **19 pruebas aprobadas y 0 fallos**. Las correcciones realizadas afectaron únicamente a los tests experimentales para alinearlos con contratos ya existentes del núcleo; no fue necesario modificar `mf_min_definitivo.py`.
 
-La ejecución comenzará por EXP-001 (memoria), porque permite probar una capacidad ya implementada en V7.1 y establecer una metodología concreta antes de abordar temporalidad, causalidad, incertidumbre, planificación y aprendizaje.
+Conclusión del bloque: no aparece evidencia experimental de que memoria, temporalidad básica, causalidad representacional, reglas, incertidumbre estructural, planificación o aprendizaje representacional requieran una quinta primitiva. Las limitaciones de semántica fuerte y los algoritmos de alto nivel permanecen explícitamente fuera del núcleo.

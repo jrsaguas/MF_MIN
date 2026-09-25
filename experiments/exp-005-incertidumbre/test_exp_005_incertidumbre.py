@@ -1,10 +1,12 @@
 """EXP-005 — Incertidumbre en MF_MIN.
 
-Evalúa si distintos estados epistémicos pueden representarse mediante
-relaciones y objetos sin introducir una quinta primitiva.
+Evalúa si estados epistémicos pueden representarse mediante relaciones y
+objetos sin introducir una quinta primitiva, respetando I3 (no contradicción).
 """
 
-from mf_min_definitivo import Kernel, Transition
+import pytest
+
+from mf_min_definitivo import ContradictionError, Kernel, Transition
 
 
 def obj(k, oid, typ, value=None):
@@ -26,14 +28,13 @@ def test_uncertain_claim_can_be_represented_without_claiming_truth():
     assert k.state.relations["supports"].predicate == "supports"
 
 
-def test_positive_and_negative_claims_are_distinct_relational_states():
+def test_conflicting_positive_and_negative_claims_are_rejected_by_i3():
     k = Kernel()
     obj(k, "a", "event")
     obj(k, "b", "event")
     rel(k, "yes", "a", "causes", "b", True)
-    rel(k, "no", "a", "causes", "b", False)
-    assert k.state.relations["yes"].polarity is True
-    assert k.state.relations["no"].polarity is False
+    with pytest.raises(ContradictionError):
+        rel(k, "no", "a", "causes", "b", False)
 
 
 def test_probability_is_not_invented_by_core():

@@ -12,10 +12,10 @@ def obj(k, oid, typ, value=None):
     k.transition(Transition("add_object", {"id": oid, "type": typ, "value": value}))
 
 
-def rel(k, rid, s, p, t, origin="asserted", premises=()):
+def rel(k, rid, s, p, t, origin="asserted", premises=(), rule_id=None):
     k.transition(Transition("add_relation", {
         "id": rid, "source": s, "predicate": p, "target": t,
-        "origin": origin, "premises": premises,
+        "origin": origin, "premises": premises, "rule_id": rule_id,
     }))
 
 
@@ -36,7 +36,7 @@ def test_learning_can_add_a_derived_generalization():
     obj(k, "action1", "action", "move")
     obj(k, "rule1", "rule")
     rel(k, "p1", "case1", "supports", "rule1")
-    rel(k, "g1", "rule1", "suggests", "action1", origin="derived", premises=("p1",))
+    rel(k, "g1", "rule1", "suggests", "action1", origin="derived", premises=("p1",), rule_id="rule1")
     assert k.state.relations["g1"].origin == "derived"
     assert k.state.relations["g1"].premises == ("p1",)
 

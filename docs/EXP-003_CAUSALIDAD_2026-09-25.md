@@ -44,6 +44,6 @@ La semántica causal fuerte queda abierta para análisis posteriores: si alguna 
 
 ## Estado
 
-**IMPLEMENTADO — pendiente de ejecución runtime.**
+**EJECUTADO — PASS.** La prueba runtime correspondiente quedó aprobada dentro de la batería de 19 pruebas.
 
 No se modifica el núcleo `<O,M,A,δ>`.

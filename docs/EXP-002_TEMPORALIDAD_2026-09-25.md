@@ -27,7 +27,7 @@ Por tanto, esta prueba no autoriza a introducir `Time` como quinta primitiva.
 
 ## Estado
 
-**IMPLEMENTADO — pendiente de ejecución runtime.**
+**EJECUTADO — PASS.** La prueba runtime correspondiente quedó aprobada dentro de la batería de 19 pruebas.
 
 El archivo de prueba es `experiments/exp-002-temporalidad/test_exp_002_temporalidad.py`.
 

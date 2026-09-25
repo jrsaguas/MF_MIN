@@ -11,10 +11,10 @@ def obj(k, oid, typ, value=None):
     k.transition(Transition("add_object", {"id": oid, "type": typ, "value": value}))
 
 
-def rel(k, rid, s, p, t, origin="asserted", premises=()):
+def rel(k, rid, s, p, t, origin="asserted", premises=(), rule_id=None):
     k.transition(Transition("add_relation", {
         "id": rid, "source": s, "predicate": p, "target": t,
-        "origin": origin, "premises": premises,
+        "origin": origin, "premises": premises, "rule_id": rule_id,
     }))
 
 
@@ -28,7 +28,7 @@ def test_rule_premises_and_conclusion_are_core_relations():
     # Una regla puede tener sus premisas representadas como relaciones.
     # Su aplicación posterior será una operación/transición.
     obj(k, "r2", "fact")
-    rel(k, "c1", "s1", "trusts", "s2", origin="derived", premises=("p1",))
+    rel(k, "c1", "s1", "trusts", "s2", origin="derived", premises=("p1",), rule_id="r1")
     assert k.state.relations["p1"].predicate == "knows"
     assert k.state.relations["c1"].origin == "derived"
     assert k.state.relations["c1"].premises == ("p1",)
@@ -42,7 +42,7 @@ def test_rule_metadata_does_not_become_a_new_primitive():
 
     # La identidad de una regla/derivación se conserva como metadato
     # operacional de una relación, no como componente fundamental del estado.
-    rel(k, "q", "a", "leads_to", "b", origin="derived", premises=("p",))
+    rel(k, "q", "a", "leads_to", "b", origin="derived", premises=("p",), rule_id="rule_q")
     q = k.state.relations["q"]
     assert (q.source, q.predicate, q.target) == ("a", "leads_to", "b")
     assert q.origin == "derived"
@@ -59,6 +59,6 @@ def test_core_does_not_assume_rule_semantics_without_transition():
 
     k.transition(Transition("add_relation", {
         "id": "d", "source": "a", "predicate": "derived_result",
-        "target": "b", "origin": "derived", "premises": ("p",),
+        "target": "b", "origin": "derived", "premises": ("p",), "rule_id": "rule_d",
     }))
     assert k.state.relations["d"].origin == "derived"

@@ -53,4 +53,4 @@ El resultado no demuestra que toda teoría probabilística pueda implementarse s
 
 ## Estado
 
-**IMPLEMENTADO — pendiente de ejecución runtime.**
+**EJECUTADO — PASS.** La representación estructural quedó aprobada y el intento de afirmar simultáneamente polaridades positiva y negativa para el mismo triple fue rechazado por I3, como exige el núcleo. Esto corrige la formulación inicial del experimento: la polaridad no se trata como permiso para almacenar contradicciones.

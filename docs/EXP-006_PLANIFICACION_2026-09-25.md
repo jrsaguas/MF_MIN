@@ -40,4 +40,4 @@ Planificación óptima, heurísticas, costos, incertidumbre, restricciones tempo
 
 ## Estado
 
-**IMPLEMENTADO — pendiente de ejecución runtime.**
+**EJECUTADO — PASS.** La prueba runtime correspondiente quedó aprobada dentro de la batería de 19 pruebas.
