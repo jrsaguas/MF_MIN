@@ -76,19 +76,26 @@ El núcleo queda tratado como **mínimo operativo de trabajo** bajo la semántic
 
 | Bloque | Propósito | Resultado esperado |
 |---|---|---|
-| **A** | Especificación formal | Definición canónica del núcleo |
-| **B** | Irreducibilidad | Cierre acotado de O, M, A y δ |
-| **C** | Suficiencia constructiva | Mapa de expresividad y límites |
-| **D** | Reclasificación V7.1 | Separación núcleo/extensiones |
-| **E** | Experimentos controlados | Evidencia reproducible sobre capacidades |
-| **F** | Gobernanza científica | Criterios para evolucionar el núcleo |
+| **A** | Especificación formal | **CERRADO** |
+| **B** | Irreducibilidad | **CERRADO — ACOTADO** |
+| **C** | Suficiencia constructiva | **CERRADO** |
+| **D** | Reclasificación V7.1 | **CERRADO** |
+| **E** | Experimentos controlados | **CERRADO — 19 PASS / 0 FAIL** |
+| **F** | Gobernanza científica | **CERRADO — PROTOCOLO ESTABLECIDO** |
 
 ### Documentación
 
 - [Plan completo de Bloques A–F](docs/PLAN_BLOQUES_A_F_2026-09-24.md)
 - [Cierre de irreducibilidad](docs/PRUEBA_IRREDUCIBILIDAD_MF_MIN_2026-09-24.md)
+- [Especificación formal del núcleo](docs/MF_MIN_CORE_SPEC_2026-09-24.md)
+- [Suficiencia constructiva](docs/BLOQUE_C_SUFICIENCIA_CONSTRUCTIVA_2026-09-25.md)
+- [Reclasificación V7.1](docs/BLOQUE_D_RECLASIFICACION_V7_1_2026-09-25.md)
+- [Experimentos controlados](docs/BLOQUE_E_EXPERIMENTOS_CONTROLADOS_2026-09-25.md)
+- [Gobernanza del núcleo](docs/BLOQUE_F_GOBERNANZA_NUCLEO_2026-09-25.md)
 - [Registro de decisiones](docs/REGISTRO_DECISION_MF_MIN_2026-09-24.md)
 
 **Registro inicial:** 2026-09-25 02:22:46 UTC / 2026-09-24 20:22:46 UTC-06:00.
 
 El objetivo de esta etapa no es aumentar indefinidamente la cantidad de funcionalidades, sino determinar qué puede emerger del núcleo, dónde están sus límites y qué extensiones están realmente justificadas.
+
+**Estado de la etapa fundacional: A–F CERRADOS.**
